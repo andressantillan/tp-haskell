@@ -26,3 +26,19 @@ agregarAmigo c1 c2
     | c1 == c2 = c1 -- Si me quiero agregar a mi mismo como amigo, no puedo. Devuelvo c1
     | elem c2 (amigos c1) = c1
     | otherwise = c1 { amigos = amigos c1 ++ [c2]}
+
+grogxd :: TipoCliente -> TipoCliente
+grogxd c = c{resistencia = 0}
+
+jarraLoca c = c {
+    resistencia = resistencia c - 10,
+    amigos = disminuirResistencia
+} where disminuirResistencia = map jarraLoca (amigos c)
+
+klusener gusto c = c {resistencia = disminuirResistencia c (length gusto)}
+    where disminuirResistencia c x = resistencia c - toInteger x
+
+tintico c = c {resistencia = aumentarResistencia c (length (amigos c))}
+    where aumentarResistencia c x = resistencia c + toInteger x
+
+-- Queda por resolver el de la soda

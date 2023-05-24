@@ -1,6 +1,3 @@
-import Data.Char
-import Data.List
+module Bebida where
 
-data TipoBebida = Bebida {
-    nombre::String
-} deriving Show 
+grogxd c = c { c = resistencia c 0}
