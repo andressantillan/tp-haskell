@@ -1,44 +1,48 @@
+module Cliente where
+
 import Data.Char
 import Data.List
 
 data TipoCliente = Cliente {
     nombre::String,
     resistencia::Integer,
-    amigos::[TipoCliente]
-} deriving Show 
+    amigos::[TipoCliente],
+    historial::[TipoAccion]
+}deriving Show
 
-cliente1 = Cliente "Rodri" 55 []
-cliente2 = Cliente "Marcos" 40 [cliente1]
-cliente3 = Cliente "Cristian" 2 []
-cliente4 = Cliente "Ana" 120 [cliente1, cliente2]
+data TipoAccion = Accion {
+    nombre_accion::String,
+    accion::(TipoCliente -> TipoCliente)
+}
 
-comoEsta cliente 
-    | resistencia cliente >= 50 = "Fresco"
-    | resistencia cliente < 50 && length (amigos cliente) > 1 = "Piola"
-    | otherwise = "Durisimoooooo"
+instance Show (TipoAccion) where
+    show accion = nombre_accion accion
 
 instance Eq TipoCliente where
     c1 == c2 = lowercase(nombre c1) == lowercase(nombre c2)
             where lowercase s = map toLower s
 
--- c1 agrega a c2
-agregarAmigo c1 c2 
+comoEsta::TipoCliente->String
+comoEsta cliente 
+    | resistencia cliente >= 50 = "Fresco"
+    | resistencia cliente < 50 && length (amigos cliente) > 1 = "Piola"
+    | otherwise = "Durisimoooooo"
+
+-- c1 agrega c2 (invertido)
+accionAgregarAmigo::TipoCliente->TipoCliente->TipoCliente
+accionAgregarAmigo c2 c1 
     | c1 == c2 = c1 -- Si me quiero agregar a mi mismo como amigo, no puedo. Devuelvo c1
     | elem c2 (amigos c1) = c1
     | otherwise = c1 { amigos = amigos c1 ++ [c2]}
 
-grogxd :: TipoCliente -> TipoCliente
-grogxd c = c{resistencia = 0}
+accionRescatarse::Int->TipoCliente->TipoCliente
+accionRescatarse horas c
+    | horas <= 0 = c
+    | horas > 0 && horas < 3 = c {resistencia = resistencia c + 100}
+    | otherwise = c {resistencia = resistencia c + 200}
 
-jarraLoca c = c {
-    resistencia = resistencia c - 10,
-    amigos = disminuirResistencia
-} where disminuirResistencia = map jarraLoca (amigos c)
+realizarAccion :: TipoCliente -> TipoAccion -> TipoCliente
+realizarAccion cliente accionAux = accion accionAux cliente
 
-klusener gusto c = c {resistencia = disminuirResistencia c (length gusto)}
-    where disminuirResistencia c x = resistencia c - toInteger x
-
-tintico c = c {resistencia = aumentarResistencia c (length (amigos c))}
-    where aumentarResistencia c x = resistencia c + toInteger x
-
--- Queda por resolver el de la soda
+agregarAmigo nuevoAmigo = Accion ("Agregar a " ++ (nombre nuevoAmigo)) (accionAgregarAmigo nuevoAmigo)
+rescatarse h = Accion "Rescatarse" (accionRescatarse h)
